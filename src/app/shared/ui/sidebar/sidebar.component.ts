@@ -1,26 +1,26 @@
-import { Component, inject } from '@angular/core';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { AsyncPipe } from '@angular/common';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatListModule } from '@angular/material/list';
-import { MatIconModule } from '@angular/material/icon';
-import { Observable } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
-import { RouterLink } from '@angular/router';
+import { Component, inject } from "@angular/core";
+import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
+import { AsyncPipe } from "@angular/common";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { MatButtonModule } from "@angular/material/button";
+import { MatSidenavModule } from "@angular/material/sidenav";
+import { MatListModule } from "@angular/material/list";
+import { MatIconModule } from "@angular/material/icon";
+import { Observable } from "rxjs";
+import { map, shareReplay } from "rxjs/operators";
+import { RouterLink, RouterModule } from "@angular/router";
 
 @Component({
-  selector: 'app-sidebar',
+  selector: "app-sidebar",
   standalone: true,
   imports: [
     MatToolbarModule,
     MatButtonModule,
+    MatIconModule,
     MatSidenavModule,
     MatListModule,
-    MatIconModule,
     AsyncPipe,
-    RouterLink
+    RouterModule,
   ],
   template: /*html*/ `
     <mat-sidenav-container class="sidenav-container">
@@ -34,10 +34,19 @@ import { RouterLink } from '@angular/router';
       >
         <mat-toolbar>Menu</mat-toolbar>
         <mat-nav-list>
-          <a mat-list-item routerLink="/dashboard" routerLinkActive="active" ariaCurrentWhenActive="page">Dashboard</a>
-          <a mat-list-item routerLink="/projects" routerLinkActive="active" ariaCurrentWhenActive="page">Projects</a>
-          <a mat-list-item routerLink="/tasks" routerLinkActive="active" ariaCurrentWhenActive="page">Tasks</a>
-          <a mat-list-item routerLink="/sprints" routerLinkActive="active" ariaCurrentWhenActive="page">Sprints</a>
+          @for (nav of navItems; track nav) {
+          <a
+            mat-list-item
+            [routerLink]="nav.route"
+            [activated]="rla.isActive"
+            routerLinkActive
+            ariaCurrentWhenActive="page"
+            #rla="routerLinkActive"
+          >
+            <mat-icon>{{ nav.icon }}</mat-icon>
+            {{ nav.text }}
+          </a>
+          }
         </mat-nav-list>
       </mat-sidenav>
       <mat-sidenav-content>
@@ -52,13 +61,14 @@ import { RouterLink } from '@angular/router';
             <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
           </button>
           }
-          <span>worker-poc</span>
+          <span>TO-DONE</span>
         </mat-toolbar>
         <ng-content></ng-content>
       </mat-sidenav-content>
     </mat-sidenav-container>
   `,
   styles: /*css*/ `
+  @use '@angular/material' as mat;
   .sidenav-container {
       height: 100%;
     }
@@ -71,10 +81,13 @@ import { RouterLink } from '@angular/router';
       background: inherit;
     }
 
-    .mat-toolbar.mat-primary {
+    .mat-toolbar {
       position: sticky;
       top: 0;
       z-index: 1;
+    }
+    .mdc-list-item--activated {
+      background-color: #E0E0E0;
     }
   `,
 })
@@ -87,4 +100,13 @@ export class SidebarComponent {
       map((result) => result.matches),
       shareReplay()
     );
+
+  navItems = [
+    { route: "/dashboard", text: "Dashboard", icon: "dashboard" },
+    {
+      route: "/collections",
+      text: "Collections",
+      icon: "collections_bookmark",
+    },
+  ];
 }
